@@ -1,689 +1,568 @@
 module ROM_128(
-input clk,
-input in_valid,
-input rst_n,
-output reg [23:0] w_r,
-output reg [23:0] w_i,
-output reg[1:0] state
+	input clk,
+	input in_valid,
+	input rst_n,
+	output reg [23:0] w_r,
+	output reg [23:0] w_i,
+	output reg[1:0] state
 );
-
-reg valid,next_valid;
-reg [8:0] count,next_count;
+////////////////////////////////////////////
+// Internal signals
+reg [9:0] count,next_count;
+reg [7:0] s_count,next_s_count;
+////////////////////////////////////////////
+// Next state logic
 always @(*) begin
-    if(in_valid || valid)next_count = count + 1;
-    else next_count = count;
+    if(in_valid)
+    begin 
+        next_count = count + 1;
+        next_s_count = s_count;
+    end
+    else begin
+        next_count = count;
+        next_s_count = s_count;  
+    end
     
-    if (count<9'd128) 
+    if (count<10'd128) 
         state = 2'd0;
-    else if (count >= 9'd128 && count < 9'd256)
+    else if (count >= 10'd128 && s_count < 8'd128)begin
         state = 2'd1;
-    else if (count >= 9'd256 && count < 9'd384)
+        next_s_count = s_count + 1;
+    end
+    else if (count >= 10'd128 && s_count >= 8'd128)begin
         state = 2'd2;
-    else state = 2'd3;
+        next_s_count = s_count + 1;
+    end
 
-	case(count)
-	9'd256: begin 
+	case(s_count)
+	8'd128: begin 
 	 w_r = 24'b 000000000000000100000000;
 	 w_i = 24'b 000000000000000000000000;
-	 next_valid = 1'b1;
 	 end
-	9'd257: begin 
+	8'd129: begin 
 	 w_r = 24'b 000000000000000100000000;
 	 w_i = 24'b 111111111111111111111010;
-	 next_valid = 1'b1;
 	 end
-	9'd258: begin 
+	8'd130: begin 
 	 w_r = 24'b 000000000000000100000000;
 	 w_i = 24'b 111111111111111111110011;
-	 next_valid = 1'b1;
 	 end
-	9'd259: begin 
+	8'd131: begin 
 	 w_r = 24'b 000000000000000011111111;
 	 w_i = 24'b 111111111111111111101101;
-	 next_valid = 1'b1;
 	 end
-	9'd260: begin 
+	8'd132: begin 
 	 w_r = 24'b 000000000000000011111111;
 	 w_i = 24'b 111111111111111111100111;
-	 next_valid = 1'b1;
 	 end
-	9'd261: begin 
+	8'd133: begin 
 	 w_r = 24'b 000000000000000011111110;
 	 w_i = 24'b 111111111111111111100001;
-	 next_valid = 1'b1;
 	 end
-	9'd262: begin 
+	8'd134: begin 
 	 w_r = 24'b 000000000000000011111101;
 	 w_i = 24'b 111111111111111111011010;
-	 next_valid = 1'b1;
 	 end
-	9'd263: begin 
+	8'd135: begin 
 	 w_r = 24'b 000000000000000011111100;
 	 w_i = 24'b 111111111111111111010100;
-	 next_valid = 1'b1;
 	 end
-	9'd264: begin 
+	8'd136: begin 
 	 w_r = 24'b 000000000000000011111011;
 	 w_i = 24'b 111111111111111111001110;
-	 next_valid = 1'b1;
 	 end
-	9'd265: begin 
+	8'd137: begin 
 	 w_r = 24'b 000000000000000011111010;
 	 w_i = 24'b 111111111111111111001000;
-	 next_valid = 1'b1;
 	 end
-	9'd266: begin 
+	8'd138: begin 
 	 w_r = 24'b 000000000000000011111000;
 	 w_i = 24'b 111111111111111111000010;
-	 next_valid = 1'b1;
 	 end
-	9'd267: begin 
+	8'd139: begin 
 	 w_r = 24'b 000000000000000011110111;
 	 w_i = 24'b 111111111111111110111100;
-	 next_valid = 1'b1;
 	 end
-	9'd268: begin 
+	8'd140: begin 
 	 w_r = 24'b 000000000000000011110101;
 	 w_i = 24'b 111111111111111110110110;
-	 next_valid = 1'b1;
 	 end
-	9'd269: begin 
+	8'd141: begin 
 	 w_r = 24'b 000000000000000011110011;
 	 w_i = 24'b 111111111111111110110000;
-	 next_valid = 1'b1;
 	 end
-	9'd270: begin 
+	8'd142: begin 
 	 w_r = 24'b 000000000000000011110001;
 	 w_i = 24'b 111111111111111110101010;
-	 next_valid = 1'b1;
 	 end
-	9'd271: begin 
+	8'd143: begin 
 	 w_r = 24'b 000000000000000011101111;
 	 w_i = 24'b 111111111111111110100100;
-	 next_valid = 1'b1;
 	 end
-	9'd272: begin 
+	8'd144: begin 
 	 w_r = 24'b 000000000000000011101101;
 	 w_i = 24'b 111111111111111110011110;
-	 next_valid = 1'b1;
 	 end
-	9'd273: begin 
+	8'd145: begin 
 	 w_r = 24'b 000000000000000011101010;
 	 w_i = 24'b 111111111111111110011000;
-	 next_valid = 1'b1;
 	 end
-	9'd274: begin 
+	8'd146: begin 
 	 w_r = 24'b 000000000000000011100111;
 	 w_i = 24'b 111111111111111110010011;
-	 next_valid = 1'b1;
 	 end
-	9'd275: begin 
+	8'd147: begin 
 	 w_r = 24'b 000000000000000011100101;
 	 w_i = 24'b 111111111111111110001101;
-	 next_valid = 1'b1;
 	 end
-	9'd276: begin 
+	8'd148: begin 
 	 w_r = 24'b 000000000000000011100010;
 	 w_i = 24'b 111111111111111110000111;
-	 next_valid = 1'b1;
 	 end
-	9'd277: begin 
+	8'd149: begin 
 	 w_r = 24'b 000000000000000011011111;
 	 w_i = 24'b 111111111111111110000010;
-	 next_valid = 1'b1;
 	 end
-	9'd278: begin 
+	8'd150: begin 
 	 w_r = 24'b 000000000000000011011100;
 	 w_i = 24'b 111111111111111101111100;
-	 next_valid = 1'b1;
 	 end
-	9'd279: begin 
+	8'd151: begin 
 	 w_r = 24'b 000000000000000011011000;
 	 w_i = 24'b 111111111111111101110111;
-	 next_valid = 1'b1;
 	 end
-	9'd280: begin 
+	8'd152: begin 
 	 w_r = 24'b 000000000000000011010101;
 	 w_i = 24'b 111111111111111101110010;
-	 next_valid = 1'b1;
 	 end
-	9'd281: begin 
+	8'd153: begin 
 	 w_r = 24'b 000000000000000011010001;
 	 w_i = 24'b 111111111111111101101101;
-	 next_valid = 1'b1;
 	 end
-	9'd282: begin 
+	8'd154: begin 
 	 w_r = 24'b 000000000000000011001110;
 	 w_i = 24'b 111111111111111101101000;
-	 next_valid = 1'b1;
 	 end
-	9'd283: begin 
+	8'd155: begin 
 	 w_r = 24'b 000000000000000011001010;
 	 w_i = 24'b 111111111111111101100011;
-	 next_valid = 1'b1;
 	 end
-	9'd284: begin 
+	8'd156: begin 
 	 w_r = 24'b 000000000000000011000110;
 	 w_i = 24'b 111111111111111101011110;
-	 next_valid = 1'b1;
 	 end
-	9'd285: begin 
+	8'd157: begin 
 	 w_r = 24'b 000000000000000011000010;
 	 w_i = 24'b 111111111111111101011001;
-	 next_valid = 1'b1;
 	 end
-	9'd286: begin 
+	8'd158: begin 
 	 w_r = 24'b 000000000000000010111110;
 	 w_i = 24'b 111111111111111101010100;
-	 next_valid = 1'b1;
 	 end
-	9'd287: begin 
+	8'd159: begin 
 	 w_r = 24'b 000000000000000010111001;
 	 w_i = 24'b 111111111111111101001111;
-	 next_valid = 1'b1;
 	 end
-	9'd288: begin 
+	8'd160: begin 
 	 w_r = 24'b 000000000000000010110101;
 	 w_i = 24'b 111111111111111101001011;
-	 next_valid = 1'b1;
 	 end
-	9'd289: begin 
+	8'd161: begin 
 	 w_r = 24'b 000000000000000010110001;
 	 w_i = 24'b 111111111111111101000111;
-	 next_valid = 1'b1;
 	 end
-	9'd290: begin 
+	8'd162: begin 
 	 w_r = 24'b 000000000000000010101100;
 	 w_i = 24'b 111111111111111101000010;
-	 next_valid = 1'b1;
 	 end
-	9'd291: begin 
+	8'd163: begin 
 	 w_r = 24'b 000000000000000010100111;
 	 w_i = 24'b 111111111111111100111110;
-	 next_valid = 1'b1;
 	 end
-	9'd292: begin 
+	8'd164: begin 
 	 w_r = 24'b 000000000000000010100010;
 	 w_i = 24'b 111111111111111100111010;
-	 next_valid = 1'b1;
 	 end
-	9'd293: begin 
+	8'd165: begin 
 	 w_r = 24'b 000000000000000010011101;
 	 w_i = 24'b 111111111111111100110110;
-	 next_valid = 1'b1;
 	 end
-	9'd294: begin 
+	8'd166: begin 
 	 w_r = 24'b 000000000000000010011000;
 	 w_i = 24'b 111111111111111100110010;
-	 next_valid = 1'b1;
 	 end
-	9'd295: begin 
+	8'd167: begin 
 	 w_r = 24'b 000000000000000010010011;
 	 w_i = 24'b 111111111111111100101111;
-	 next_valid = 1'b1;
 	 end
-	9'd296: begin 
+	8'd168: begin 
 	 w_r = 24'b 000000000000000010001110;
 	 w_i = 24'b 111111111111111100101011;
-	 next_valid = 1'b1;
 	 end
-	9'd297: begin 
+	8'd169: begin 
 	 w_r = 24'b 000000000000000010001001;
 	 w_i = 24'b 111111111111111100101000;
-	 next_valid = 1'b1;
 	 end
-	9'd298: begin 
+	8'd170: begin 
 	 w_r = 24'b 000000000000000010000100;
 	 w_i = 24'b 111111111111111100100100;
-	 next_valid = 1'b1;
 	 end
-	9'd299: begin 
+	8'd171: begin 
 	 w_r = 24'b 000000000000000001111110;
 	 w_i = 24'b 111111111111111100100001;
-	 next_valid = 1'b1;
 	 end
-	9'd300: begin 
+	8'd172: begin 
 	 w_r = 24'b 000000000000000001111001;
 	 w_i = 24'b 111111111111111100011110;
-	 next_valid = 1'b1;
 	 end
-	9'd301: begin 
+	8'd173: begin 
 	 w_r = 24'b 000000000000000001110011;
 	 w_i = 24'b 111111111111111100011011;
-	 next_valid = 1'b1;
 	 end
-	9'd302: begin 
+	8'd174: begin 
 	 w_r = 24'b 000000000000000001101101;
 	 w_i = 24'b 111111111111111100011001;
-	 next_valid = 1'b1;
 	 end
-	9'd303: begin 
+	8'd175: begin 
 	 w_r = 24'b 000000000000000001101000;
 	 w_i = 24'b 111111111111111100010110;
-	 next_valid = 1'b1;
 	 end
-	9'd304: begin 
+	8'd176: begin 
 	 w_r = 24'b 000000000000000001100010;
 	 w_i = 24'b 111111111111111100010011;
-	 next_valid = 1'b1;
 	 end
-	9'd305: begin 
+	8'd177: begin 
 	 w_r = 24'b 000000000000000001011100;
 	 w_i = 24'b 111111111111111100010001;
-	 next_valid = 1'b1;
 	 end
-	9'd306: begin 
+	8'd178: begin 
 	 w_r = 24'b 000000000000000001010110;
 	 w_i = 24'b 111111111111111100001111;
-	 next_valid = 1'b1;
 	 end
-	9'd307: begin 
+	8'd179: begin 
 	 w_r = 24'b 000000000000000001010000;
 	 w_i = 24'b 111111111111111100001101;
-	 next_valid = 1'b1;
 	 end
-	9'd308: begin 
+	8'd180: begin 
 	 w_r = 24'b 000000000000000001001010;
 	 w_i = 24'b 111111111111111100001011;
-	 next_valid = 1'b1;
 	 end
-	9'd309: begin 
+	8'd181: begin 
 	 w_r = 24'b 000000000000000001000100;
 	 w_i = 24'b 111111111111111100001001;
-	 next_valid = 1'b1;
 	 end
-	9'd310: begin 
+	8'd182: begin 
 	 w_r = 24'b 000000000000000000111110;
 	 w_i = 24'b 111111111111111100001000;
-	 next_valid = 1'b1;
 	 end
-	9'd311: begin 
+	8'd183: begin 
 	 w_r = 24'b 000000000000000000111000;
 	 w_i = 24'b 111111111111111100000110;
-	 next_valid = 1'b1;
 	 end
-	9'd312: begin 
+	8'd184: begin 
 	 w_r = 24'b 000000000000000000110010;
 	 w_i = 24'b 111111111111111100000101;
-	 next_valid = 1'b1;
 	 end
-	9'd313: begin 
+	8'd185: begin 
 	 w_r = 24'b 000000000000000000101100;
 	 w_i = 24'b 111111111111111100000100;
-	 next_valid = 1'b1;
 	 end
-	9'd314: begin 
+	8'd186: begin 
 	 w_r = 24'b 000000000000000000100110;
 	 w_i = 24'b 111111111111111100000011;
-	 next_valid = 1'b1;
 	 end
-	9'd315: begin 
+	8'd187: begin 
 	 w_r = 24'b 000000000000000000011111;
 	 w_i = 24'b 111111111111111100000010;
-	 next_valid = 1'b1;
 	 end
-	9'd316: begin 
+	8'd188: begin 
 	 w_r = 24'b 000000000000000000011001;
 	 w_i = 24'b 111111111111111100000001;
-	 next_valid = 1'b1;
 	 end
-	9'd317: begin 
+	8'd189: begin 
 	 w_r = 24'b 000000000000000000010011;
 	 w_i = 24'b 111111111111111100000001;
-	 next_valid = 1'b1;
 	 end
-	9'd318: begin 
+	8'd190: begin 
 	 w_r = 24'b 000000000000000000001101;
 	 w_i = 24'b 111111111111111100000000;
-	 next_valid = 1'b1;
 	 end
-	9'd319: begin 
+	8'd191: begin 
 	 w_r = 24'b 000000000000000000000110;
 	 w_i = 24'b 111111111111111100000000;
-	 next_valid = 1'b1;
 	 end
-	9'd320: begin 
+	8'd192: begin 
 	 w_r = 24'b 000000000000000000000000;
 	 w_i = 24'b 111111111111111100000000;
-	 next_valid = 1'b1;
 	 end
-	9'd321: begin 
+	8'd193: begin 
 	 w_r = 24'b 111111111111111111111010;
 	 w_i = 24'b 111111111111111100000000;
-	 next_valid = 1'b1;
 	 end
-	9'd322: begin 
+	8'd194: begin 
 	 w_r = 24'b 111111111111111111110011;
 	 w_i = 24'b 111111111111111100000000;
-	 next_valid = 1'b1;
 	 end
-	9'd323: begin 
+	8'd195: begin 
 	 w_r = 24'b 111111111111111111101101;
 	 w_i = 24'b 111111111111111100000001;
-	 next_valid = 1'b1;
 	 end
-	9'd324: begin 
+	8'd196: begin 
 	 w_r = 24'b 111111111111111111100111;
 	 w_i = 24'b 111111111111111100000001;
-	 next_valid = 1'b1;
 	 end
-	9'd325: begin 
+	8'd197: begin 
 	 w_r = 24'b 111111111111111111100001;
 	 w_i = 24'b 111111111111111100000010;
-	 next_valid = 1'b1;
 	 end
-	9'd326: begin 
+	8'd198: begin 
 	 w_r = 24'b 111111111111111111011010;
 	 w_i = 24'b 111111111111111100000011;
-	 next_valid = 1'b1;
 	 end
-	9'd327: begin 
+	8'd199: begin 
 	 w_r = 24'b 111111111111111111010100;
 	 w_i = 24'b 111111111111111100000100;
-	 next_valid = 1'b1;
 	 end
-	9'd328: begin 
+	8'd200: begin 
 	 w_r = 24'b 111111111111111111001110;
 	 w_i = 24'b 111111111111111100000101;
-	 next_valid = 1'b1;
 	 end
-	9'd329: begin 
+	8'd201: begin 
 	 w_r = 24'b 111111111111111111001000;
 	 w_i = 24'b 111111111111111100000110;
-	 next_valid = 1'b1;
 	 end
-	9'd330: begin 
+	8'd202: begin 
 	 w_r = 24'b 111111111111111111000010;
 	 w_i = 24'b 111111111111111100001000;
-	 next_valid = 1'b1;
 	 end
-	9'd331: begin 
+	8'd203: begin 
 	 w_r = 24'b 111111111111111110111100;
 	 w_i = 24'b 111111111111111100001001;
-	 next_valid = 1'b1;
 	 end
-	9'd332: begin 
+	8'd204: begin 
 	 w_r = 24'b 111111111111111110110110;
 	 w_i = 24'b 111111111111111100001011;
-	 next_valid = 1'b1;
 	 end
-	9'd333: begin 
+	8'd205: begin 
 	 w_r = 24'b 111111111111111110110000;
 	 w_i = 24'b 111111111111111100001101;
-	 next_valid = 1'b1;
 	 end
-	9'd334: begin 
+	8'd206: begin 
 	 w_r = 24'b 111111111111111110101010;
 	 w_i = 24'b 111111111111111100001111;
-	 next_valid = 1'b1;
 	 end
-	9'd335: begin 
+	8'd207: begin 
 	 w_r = 24'b 111111111111111110100100;
 	 w_i = 24'b 111111111111111100010001;
-	 next_valid = 1'b1;
 	 end
-	9'd336: begin 
+	8'd208: begin 
 	 w_r = 24'b 111111111111111110011110;
 	 w_i = 24'b 111111111111111100010011;
-	 next_valid = 1'b1;
 	 end
-	9'd337: begin 
+	8'd209: begin 
 	 w_r = 24'b 111111111111111110011000;
 	 w_i = 24'b 111111111111111100010110;
-	 next_valid = 1'b1;
 	 end
-	9'd338: begin 
+	8'd210: begin 
 	 w_r = 24'b 111111111111111110010011;
 	 w_i = 24'b 111111111111111100011001;
-	 next_valid = 1'b1;
 	 end
-	9'd339: begin 
+	8'd211: begin 
 	 w_r = 24'b 111111111111111110001101;
 	 w_i = 24'b 111111111111111100011011;
-	 next_valid = 1'b1;
 	 end
-	9'd340: begin 
+	8'd212: begin 
 	 w_r = 24'b 111111111111111110000111;
 	 w_i = 24'b 111111111111111100011110;
-	 next_valid = 1'b1;
 	 end
-	9'd341: begin 
+	8'd213: begin 
 	 w_r = 24'b 111111111111111110000010;
 	 w_i = 24'b 111111111111111100100001;
-	 next_valid = 1'b1;
 	 end
-	9'd342: begin 
+	8'd214: begin 
 	 w_r = 24'b 111111111111111101111100;
 	 w_i = 24'b 111111111111111100100100;
-	 next_valid = 1'b1;
 	 end
-	9'd343: begin 
+	8'd215: begin 
 	 w_r = 24'b 111111111111111101110111;
 	 w_i = 24'b 111111111111111100101000;
-	 next_valid = 1'b1;
 	 end
-	9'd344: begin 
+	8'd216: begin 
 	 w_r = 24'b 111111111111111101110010;
 	 w_i = 24'b 111111111111111100101011;
-	 next_valid = 1'b1;
 	 end
-	9'd345: begin 
+	8'd217: begin 
 	 w_r = 24'b 111111111111111101101101;
 	 w_i = 24'b 111111111111111100101111;
-	 next_valid = 1'b1;
 	 end
-	9'd346: begin 
+	8'd218: begin 
 	 w_r = 24'b 111111111111111101101000;
 	 w_i = 24'b 111111111111111100110010;
-	 next_valid = 1'b1;
 	 end
-	9'd347: begin 
+	8'd219: begin 
 	 w_r = 24'b 111111111111111101100011;
 	 w_i = 24'b 111111111111111100110110;
-	 next_valid = 1'b1;
 	 end
-	9'd348: begin 
+	8'd220: begin 
 	 w_r = 24'b 111111111111111101011110;
 	 w_i = 24'b 111111111111111100111010;
-	 next_valid = 1'b1;
 	 end
-	9'd349: begin 
+	8'd221: begin 
 	 w_r = 24'b 111111111111111101011001;
 	 w_i = 24'b 111111111111111100111110;
-	 next_valid = 1'b1;
 	 end
-	9'd350: begin 
+	8'd222: begin 
 	 w_r = 24'b 111111111111111101010100;
 	 w_i = 24'b 111111111111111101000010;
-	 next_valid = 1'b1;
 	 end
-	9'd351: begin 
+	8'd223: begin 
 	 w_r = 24'b 111111111111111101001111;
 	 w_i = 24'b 111111111111111101000111;
-	 next_valid = 1'b1;
 	 end
-	9'd352: begin 
+	8'd224: begin 
 	 w_r = 24'b 111111111111111101001011;
 	 w_i = 24'b 111111111111111101001011;
-	 next_valid = 1'b1;
 	 end
-	9'd353: begin 
+	8'd225: begin 
 	 w_r = 24'b 111111111111111101000111;
 	 w_i = 24'b 111111111111111101001111;
-	 next_valid = 1'b1;
 	 end
-	9'd354: begin 
+	8'd226: begin 
 	 w_r = 24'b 111111111111111101000010;
 	 w_i = 24'b 111111111111111101010100;
-	 next_valid = 1'b1;
 	 end
-	9'd355: begin 
+	8'd227: begin 
 	 w_r = 24'b 111111111111111100111110;
 	 w_i = 24'b 111111111111111101011001;
-	 next_valid = 1'b1;
 	 end
-	9'd356: begin 
+	8'd228: begin 
 	 w_r = 24'b 111111111111111100111010;
 	 w_i = 24'b 111111111111111101011110;
-	 next_valid = 1'b1;
 	 end
-	9'd357: begin 
+	8'd229: begin 
 	 w_r = 24'b 111111111111111100110110;
 	 w_i = 24'b 111111111111111101100011;
-	 next_valid = 1'b1;
 	 end
-	9'd358: begin 
+	8'd230: begin 
 	 w_r = 24'b 111111111111111100110010;
 	 w_i = 24'b 111111111111111101101000;
-	 next_valid = 1'b1;
 	 end
-	9'd359: begin 
+	8'd231: begin 
 	 w_r = 24'b 111111111111111100101111;
 	 w_i = 24'b 111111111111111101101101;
-	 next_valid = 1'b1;
 	 end
-	9'd360: begin 
+	8'd232: begin 
 	 w_r = 24'b 111111111111111100101011;
 	 w_i = 24'b 111111111111111101110010;
-	 next_valid = 1'b1;
 	 end
-	9'd361: begin 
+	8'd233: begin 
 	 w_r = 24'b 111111111111111100101000;
 	 w_i = 24'b 111111111111111101110111;
-	 next_valid = 1'b1;
 	 end
-	9'd362: begin 
+	8'd234: begin 
 	 w_r = 24'b 111111111111111100100100;
 	 w_i = 24'b 111111111111111101111100;
-	 next_valid = 1'b1;
 	 end
-	9'd363: begin 
+	8'd235: begin 
 	 w_r = 24'b 111111111111111100100001;
 	 w_i = 24'b 111111111111111110000010;
-	 next_valid = 1'b1;
 	 end
-	9'd364: begin 
+	8'd236: begin 
 	 w_r = 24'b 111111111111111100011110;
 	 w_i = 24'b 111111111111111110000111;
-	 next_valid = 1'b1;
 	 end
-	9'd365: begin 
+	8'd237: begin 
 	 w_r = 24'b 111111111111111100011011;
 	 w_i = 24'b 111111111111111110001101;
-	 next_valid = 1'b1;
 	 end
-	9'd366: begin 
+	8'd238: begin 
 	 w_r = 24'b 111111111111111100011001;
 	 w_i = 24'b 111111111111111110010011;
-	 next_valid = 1'b1;
 	 end
-	9'd367: begin 
+	8'd239: begin 
 	 w_r = 24'b 111111111111111100010110;
 	 w_i = 24'b 111111111111111110011000;
-	 next_valid = 1'b1;
 	 end
-	9'd368: begin 
+	8'd240: begin 
 	 w_r = 24'b 111111111111111100010011;
 	 w_i = 24'b 111111111111111110011110;
-	 next_valid = 1'b1;
 	 end
-	9'd369: begin 
+	8'd241: begin 
 	 w_r = 24'b 111111111111111100010001;
 	 w_i = 24'b 111111111111111110100100;
-	 next_valid = 1'b1;
 	 end
-	9'd370: begin 
+	8'd242: begin 
 	 w_r = 24'b 111111111111111100001111;
 	 w_i = 24'b 111111111111111110101010;
-	 next_valid = 1'b1;
 	 end
-	9'd371: begin 
+	8'd243: begin 
 	 w_r = 24'b 111111111111111100001101;
 	 w_i = 24'b 111111111111111110110000;
-	 next_valid = 1'b1;
 	 end
-	9'd372: begin 
+	8'd244: begin 
 	 w_r = 24'b 111111111111111100001011;
 	 w_i = 24'b 111111111111111110110110;
-	 next_valid = 1'b1;
 	 end
-	9'd373: begin 
+	8'd245: begin 
 	 w_r = 24'b 111111111111111100001001;
 	 w_i = 24'b 111111111111111110111100;
-	 next_valid = 1'b1;
 	 end
-	9'd374: begin 
+	8'd246: begin 
 	 w_r = 24'b 111111111111111100001000;
 	 w_i = 24'b 111111111111111111000010;
-	 next_valid = 1'b1;
 	 end
-	9'd375: begin 
+	8'd247: begin 
 	 w_r = 24'b 111111111111111100000110;
 	 w_i = 24'b 111111111111111111001000;
-	 next_valid = 1'b1;
 	 end
-	9'd376: begin 
+	8'd248: begin 
 	 w_r = 24'b 111111111111111100000101;
 	 w_i = 24'b 111111111111111111001110;
-	 next_valid = 1'b1;
 	 end
-	9'd377: begin 
+	8'd249: begin 
 	 w_r = 24'b 111111111111111100000100;
 	 w_i = 24'b 111111111111111111010100;
-	 next_valid = 1'b1;
 	 end
-	9'd378: begin 
+	8'd250: begin 
 	 w_r = 24'b 111111111111111100000011;
 	 w_i = 24'b 111111111111111111011010;
-	 next_valid = 1'b1;
 	 end
-	9'd379: begin 
+	8'd251: begin 
 	 w_r = 24'b 111111111111111100000010;
 	 w_i = 24'b 111111111111111111100001;
-	 next_valid = 1'b1;
 	 end
-	9'd380: begin 
+	8'd252: begin 
 	 w_r = 24'b 111111111111111100000001;
 	 w_i = 24'b 111111111111111111100111;
-	 next_valid = 1'b1;
 	 end
-	9'd381: begin 
+	8'd253: begin 
 	 w_r = 24'b 111111111111111100000001;
 	 w_i = 24'b 111111111111111111101101;
-	 next_valid = 1'b1;
 	 end
-	9'd382: begin 
+	8'd254: begin 
 	 w_r = 24'b 111111111111111100000000;
 	 w_i = 24'b 111111111111111111110011;
-	 next_valid = 1'b1;
 	 end
-	9'd383: begin 
+	8'd255: begin 
 	 w_r = 24'b 111111111111111100000000;
 	 w_i = 24'b 111111111111111111111010;
-	 next_valid = 1'b0;
 	 end
 	default: begin 
 	 w_r = 24'b 000000000000000100000000;
 	 w_i = 24'b 000000000000000000000000;
-	 next_valid = 1'b1;
 	 end
 	endcase
 end
-
+////////////////////////////////////////////
+// State register
 always@(posedge clk or negedge rst_n)begin
     if(~rst_n)begin
         count <= 0;
-        valid <= 0;
+        s_count <= 0;
     end
-    else if(in_valid)
-    begin
+    else begin
         count <= next_count;
-        valid <= in_valid;
-    end
-    else if (valid)
-    begin
-        count <= next_count;
-        valid <= next_valid;
+        s_count <= next_s_count;
     end
 end
 endmodule

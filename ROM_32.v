@@ -1,18 +1,19 @@
 module ROM_32(
-input clk,
-input in_valid,
-input rst_n,
-output reg [23:0] w_r,
-output reg [23:0] w_i,
-output reg[1:0] state
+	input clk,
+	input in_valid,
+	input rst_n,
+	output reg [23:0] w_r,
+	output reg [23:0] w_i,
+	output reg[1:0] state
 );
-
-reg valid;
-reg [8:0] count,next_count;
+////////////////////////////////////////////
+// Internal signals
+reg [9:0] count,next_count;
 reg [5:0] s_count,next_s_count;
-
+////////////////////////////////////////////
+// Next state logic
 always @(*) begin
-    if(in_valid || valid)
+    if(in_valid)
     begin 
         next_count = count + 1;
         next_s_count = s_count;
@@ -22,13 +23,13 @@ always @(*) begin
         next_s_count = s_count;  
     end
     
-    if (count<9'd32) 
+    if (count<10'd32) 
         state = 2'd0;
-    else if (count >= 9'd32 && s_count < 6'd32)begin
+    else if (count >= 10'd32 && s_count < 6'd32)begin
         state = 2'd1;
         next_s_count = s_count + 1;
     end
-    else if (count >= 9'd32 && s_count >= 6'd32)begin
+    else if (count >= 10'd32 && s_count >= 6'd32)begin
         state = 2'd2;
         next_s_count = s_count + 1;
     end
@@ -168,7 +169,8 @@ always @(*) begin
 	 end
 	endcase
 end
-
+////////////////////////////////////////////
+// State register
 always@(posedge clk or negedge rst_n)begin
     if(~rst_n)begin
         count <= 0;
